@@ -1,6 +1,20 @@
 import React from "react";
 import { useState } from "react";
 
+const Statistics = (props) => {
+  return (
+    <div>
+      <h1>statistics</h1>
+      <p>good {props.good}</p>
+      <p>neutral {props.neutral}</p>
+      <p>bad {props.bad}</p>
+      <p>total {props.total}</p>
+      <p>average {props.score / props.total}</p>
+      <p>positive {100 * props.good / props.total }</p>
+    </div>
+  )
+}
+
 const App = () => {
   const [good, setGood] = useState(0);
   const [neutral, setNeutral] = useState(0);
@@ -10,7 +24,7 @@ const App = () => {
 
   const addGood = () =>
     setGood(good + 1, setTotal(total + 1), setAverage(score + 1));
-  const addNeutral = () => setNeutral(neutral + 1, setTotal(total + 1));
+  const addNeutral = () => setNeutral(neutral + 1, setTotal(total + 1), setAverage(score + 0));
   const addBad = () =>
     setBad(bad + 1, setTotal(total + 1), setAverage(score - 1));
 
@@ -21,13 +35,7 @@ const App = () => {
       <button onClick={addNeutral}>neutral</button>
       <button onClick={addBad}>bad</button>
 
-      <h1>statistics</h1>
-      <p>good {good}</p>
-      <p>neutral {neutral}</p>
-      <p>bad {bad}</p>
-      <p>all {total}</p>
-      <p>average {score / total}</p>
-      <p>positive {(100 * good) / total} %</p>
+      <Statistics good={good} neutral={neutral} bad={bad} total={total} score={score}/>
     </div>
   );
 };
