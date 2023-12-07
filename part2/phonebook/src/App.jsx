@@ -1,23 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import _ from "lodash";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import Filter from "./components/Filter";
+import axios from 'axios'
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
-  const [newId, setNewId] = useState(0);
   const [filter, setFilter] = useState("");
   const [filteredContacts, setFilteredContacts] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/persons').then(response => {
+      setPersons(response.data)
+    })
+  }, [])
 
   const addContact = (event) => {
     event.preventDefault();
     const contactObject = {
       name: newName,
       number: newNumber,
-      id: newId + 1,
+      id: persons.length + 1,
     };
 
     const resultName = persons.some((obj) => {
@@ -28,7 +34,6 @@ const App = () => {
     });
 
     if (resultName != true && resultNumber != true) {
-      setNewId(newId + 1);
       setPersons(persons.concat(contactObject));
       setNewName("");
       setNewNumber("");
