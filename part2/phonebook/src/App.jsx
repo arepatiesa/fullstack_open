@@ -12,7 +12,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
   const [filteredContacts, setFilteredContacts] = useState([]);
-  const [successMessage, setSuccessMessage] = useState("Success")
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
   const [id, setId] = useState(0);
 
   useEffect(() => {
@@ -22,13 +23,13 @@ const App = () => {
     });
   }, []);
 
-  const Notification = ({message}) => {
-    if (message == null) {
+  const Notification = ({message, style}) => {
+    if (message === null) {
       return null
     }
 
     return (
-      <div className="success">
+      <div className={style}>
         {message}
       </div>
     )
@@ -55,7 +56,7 @@ const App = () => {
         window.confirm(
           `${newName} is already added to phonebook, replace the old number with a new one?`
         )
-      ) // Here we REPLACE numbers 
+      ) // REPLACE numbers 
       {
         const number = persons.find((res) => res.name == newName);
         const changedNumber = { ...number, number: newNumber };
@@ -65,7 +66,15 @@ const App = () => {
             setPersons(
               persons.map((num) => (num.id !== number.id ? num : res.data))
             )
-          );
+          )
+          .catch(error => {
+            setErrorMessage(`Information of ${contactObject.name} has already been removed from the server`)
+            setSuccessMessage(null)
+            setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+          
+          })
         setNewName("");
         setNewNumber("");
         setSuccessMessage(`Replaced ${contactObject.name} number.`)
@@ -79,7 +88,7 @@ const App = () => {
     } else if (resultName == true && resultNumber == true) {
       alert(`${newNumber} is already added to the phonebook`);
     } else if (resultName != true && resultNumber != true) {
-      // Here is were we ADD new numbers to server and state
+      // ADD new numbers 
       phoneService.create(contactObject);
       setPersons(persons.concat(contactObject));
       setId(id + 1);
@@ -129,7 +138,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook ☎️</h2>
-      <Notification message={successMessage}/>
+      <Notification message={successMessage} style="success"/>
+      <Notification message={errorMessage} style="error"/>
       <Filter handleFilter={handleFilterChange} valueFilter={filter} />
       <h2>Add a new 📱</h2>
       <PersonForm
