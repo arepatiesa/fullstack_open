@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Country from "./components/Country";
 import List from "./components/List";
 import Search from "./components/Search"
 import Loading from "./components/Loading";
+import countryService from "./services/countryService";
 
 const App = () => {
   const [country, setCountry] = useState("");
@@ -11,45 +11,46 @@ const App = () => {
   const [filtered, setFiltered] = useState([]);
   const [info, setInfo] = useState(null);
   const [loading, setLoading] = useState(true);
-  const isFalse = false;
 
   useEffect(() => {
-    axios
-      .get(`https://studies.cs.helsinki.fi/restcountries/api/all`)
+    countryService.getAll()
       .then((res) => {
         setCountries(res.data.map((arr) => arr.name.common));
       })
       .finally(() => {
-        setLoading(isFalse);
+        setLoading(false);
       });
   }, []);
 
   useEffect(() => {
 
     if (filtered.length == 1) {
-      axios
-        .get(
-          `https://studies.cs.helsinki.fi/restcountries/api/name/${filtered[0]}`
-        )
+      countryService.getFiltered(filtered)
         .then((res) => {
           setInfo(res.data);
         })
         .finally(() => {
-          setLoading(isFalse);
+          setLoading(false);
         });
     }
   }, [filtered.length]);
 
-  const filtering = (array) => {
-    return array.toLowerCase().includes(country);
+  const filtering = (arr) => {
+    return arr.toLowerCase().includes(country);
   };
 
   const filteredCountries = countries.filter((array) => filtering(array));
+  
 
   const handleChange = (event) => {
     setCountry(event.target.value);
     setFiltered(filteredCountries);
   };
+
+  const handleShow = (showedCountry) => {
+    const showedCountries = [showedCountry]
+    setFiltered(showedCountries)
+  }
 
   return (
     <div>
@@ -57,7 +58,7 @@ const App = () => {
         <Search handleChange={handleChange} value={country} />
       ) : null}
       {country != "" && filtered.length != 1 ? (
-        <List countries={filtered} />
+        <List countries={filtered} handleShow={handleShow}/>
       ) : null}
       {filtered.length == 1 && country != "" ? (
         <Country country={info} countryName={filtered[0]} />
