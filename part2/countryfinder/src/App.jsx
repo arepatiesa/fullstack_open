@@ -61,7 +61,7 @@ const App = () => {
         <List countries={filtered} handleShow={handleShow}/>
       ) : null}
       {filtered.length == 1 && country != "" ? (
-        <Country country={info} countryName={filtered[0]} />
+        <Country country={info} countryName={filtered[0]}/>
       ) : null}
       {loading == true ? <Loading /> : null}
     </div>
