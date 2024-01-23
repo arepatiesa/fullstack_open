@@ -18,11 +18,11 @@ const Persons = ({ persons, filtered, input, handleDelete }) => {
       );
     } else {
       return (
-        <ul>
+        <div>
           {filtered.map((person) => (
             <Contact name={person.name} number={person.number} key={person.id} />
           ))}
-        </ul>
+        </div>
       );
     }
   };
