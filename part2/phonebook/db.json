@@ -1,34 +1,3 @@
 {
-  "persons": [
-    {
-      "name": "casc",
-      "number": "casc",
-      "id": 2
-    },
-    {
-      "name": "cascs",
-      "number": "321",
-      "id": 5
-    },
-    {
-      "name": "dwed",
-      "number": "dewd",
-      "id": 7
-    },
-    {
-      "name": "gfd",
-      "number": "sd",
-      "id": 8
-    },
-    {
-      "name": "cdsscdsc",
-      "number": "cdsc",
-      "id": 9
-    },
-    {
-      "name": "cascscasc",
-      "number": "csscacc",
-      "id": 10
-    }
-  ]
+  "persons": []
 }

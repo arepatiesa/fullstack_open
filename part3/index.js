@@ -5,18 +5,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static("dist"))
 
-let persons = [
-  {
-    name: "Carlos Osorio",
-    number: "67890",
-    id: 1,
-  },
-  {
-    name: "Valeria Brito",
-    number: "345547",
-    id: 2,
-  },
-];
+let persons = [];
 
 
 app.get("/api/persons", (req, res) => {
