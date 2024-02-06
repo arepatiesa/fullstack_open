@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require('mongoose')
 const cors = require("cors");
 const app = express();
 app.use(express.json());
@@ -26,12 +27,7 @@ app.get("/api/persons/:id", (req, res) => {
   }
 });
 
-const generateId = () => {
-  const maxId = persons.length > 0 ? Math.max(...persons.map((p) => p.id)) : 0;
-  return maxId + 1;
-};
-
-app.post("/api/people", (req, res) => {
+app.post("/api/persons", (req, res) => {
   const body = req.body;
 
   const status404 = (text) => {
@@ -48,14 +44,16 @@ app.post("/api/people", (req, res) => {
     status404("number");
   }
 
-  const person = {
-    name: body.name,
-    number: body.number,
-    id: generateId(),
-  };
+    const people = new People({
+      name: body.name,
+      number: body.number,
+    })
 
-  persons = persons.concat(person);
-  res.json(person);
+    people.save().then(result => {
+      console.log(`Added ${body.name} ${body.number} to phonebook.`);
+    })
+
+    res.json(People);
 });
 
 app.delete("/api/persons/:id", (req, res) => {
