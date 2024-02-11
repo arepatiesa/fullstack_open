@@ -1,31 +1,68 @@
 const express = require("express");
-const mongoose = require('mongoose')
-const cors = require("cors");
 const app = express();
+const cors = require("cors");
+
+const People = require("./models/people");
+
+const errorHandler = (error, request, response, next) => {
+  console.log(error.message);
+  
+  if (error.name === 'CastError') {
+    return response.status(404).send({error: 'malformatted id'})
+  }
+  
+  next(error)
+}
+
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({error: 'unknown endpoint'})
+}
+
 app.use(express.json());
 app.use(cors());
-app.use(express.static("dist"))
-require('dotenv').config()
-const People = require('./models/people')
-
-let persons = [];
+app.use(express.static("dist"));
+require("dotenv").config();
 
 app.get("/api/persons", (req, res) => {
-  People.find({}).then(persons => {
-    res.json(persons)
-  })
+  People.find({}).then((persons) => {
+    res.json(persons);
+  });
 });
 
 app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find((person) => person.id === id);
-
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(204).send("That page does not exist.").end();
-  }
+  People.findById(req.params.id)
+  .then(note => {
+    if (note) {
+      res.json(note)
+    } else {
+      res.status(404).end()
+    }
+  })
+  .catch(error => next(error))
 });
+
+app.delete("/api/persons/:id", (req, res, next) => {
+  People.findByIdAndDelete(req.params.id)
+    .then(result => {
+      res.status(204).end()
+    })
+    .catch(error => next(error));
+});
+
+app.put('/api/persons/:id', (req, res, next) => {
+  const body = req.body
+
+  const person = {
+    name: body.name,
+    number: body.number
+  }
+
+  People.findByIdAndUpdate(req.params.id, person, {new: true})
+    .then(updatePerson => {
+      res.json(updatePerson)
+    })
+    .catch(error => next(error))
+})
 
 app.post("/api/persons", (req, res) => {
   const body = req.body;
@@ -44,25 +81,20 @@ app.post("/api/persons", (req, res) => {
     status404("number");
   }
 
-    const people = new People({
-      name: body.name,
-      number: body.number,
-    })
+  const people = new People({
+    name: body.name,
+    number: body.number,
+  });
 
-    people.save().then(result => {
-      console.log(`Added ${body.name} ${body.number} to phonebook.`);
-    })
+  people.save().then((result) => {
+    console.log(`Added ${body.name} ${body.number} to phonebook.`);
+  });
 
-    res.json(People);
+  res.json(People);
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-
-  persons = persons.filter((p) => p.id !== id);
-  console.log(persons);
-  res.status(204).end();
-});
+app.use(unknownEndpoint)
+app.use(errorHandler)
 
 const PORT = 3001;
 app.listen(PORT, () => {
