@@ -1,0 +1,18 @@
+GET  http://localhost:3001/api/persons
+###
+
+GET http://localhost:3001/api/persons/65be737521ca37ebeba37af5
+
+###
+
+DELETE http://localhost:3001/api/persons/65c1bc9008095f1e07e04a7
+
+###
+
+POST http://localhost:3001/api/persons HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "hola",
+    "number": "54-543221"
+}

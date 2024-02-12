@@ -10,6 +10,10 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError') {
     return response.status(404).send({error: 'malformatted id'})
   }
+
+  else if (error.name === "ValidationError") {
+    return response.status(404).send({error: error.message})
+  }
   
   next(error)
 }
@@ -29,7 +33,7 @@ app.get("/api/persons", (req, res) => {
   });
 });
 
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", (req, res, next) => {
   People.findById(req.params.id)
   .then(note => {
     if (note) {
@@ -64,8 +68,8 @@ app.put('/api/persons/:id', (req, res, next) => {
     .catch(error => next(error))
 })
 
-app.post("/api/persons", (req, res) => {
-  const body = req.body;
+app.post("/api/persons", (req, res, next) => {
+  const {name, number} = req.body;
 
   const status404 = (text) => {
     return res.status(400).json({
@@ -73,24 +77,28 @@ app.post("/api/persons", (req, res) => {
     });
   };
 
-  if (!body) {
+  if (!req.body) {
     status404("content");
-  } else if (!body.name) {
+  } else if (!name) {
     status404("name");
-  } else if (!body.number) {
+  } else if (!number) {
     status404("number");
   }
 
   const people = new People({
-    name: body.name,
-    number: body.number,
+    name: name,
+    number: number,
   });
 
-  people.save().then((result) => {
-    console.log(`Added ${body.name} ${body.number} to phonebook.`);
-  });
+  people.save()
+    .then((result) => {
+      console.log(`Added ${name} ${number} to phonebook.`);
+      res.json(People);
+    })
+    .catch((error) => {
+      next(error)
+    })
 
-  res.json(People);
 });
 
 app.use(unknownEndpoint)

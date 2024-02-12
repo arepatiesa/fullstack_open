@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import _, { indexOf } from "lodash";
+import _, { indexOf, set } from "lodash";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import Filter from "./components/Filter";
@@ -23,6 +23,7 @@ const App = () => {
     });
   }, []);
 
+  // Displays Messages on the top of the app
   const Notification = ({message, style}) => {
     if (message === null) {
       return null
@@ -60,6 +61,8 @@ const App = () => {
       {
         const number = persons.find((res) => res.name == newName);
         const changedNumber = { ...number, number: newNumber };
+
+        // Backend PUT service
         phoneService
           .update(number.id, changedNumber)
           .then((res) =>
@@ -73,8 +76,8 @@ const App = () => {
             setTimeout(() => {
             setErrorMessage(null)
           }, 5000)
-          
           })
+
         setNewName("");
         setNewNumber("");
         setSuccessMessage(`Replaced ${contactObject.name} number.`)
@@ -87,21 +90,31 @@ const App = () => {
       alert(`${newNumber} is already added to the phonebook`);
     } else if (resultName == true && resultNumber == true) {
       alert(`${newNumber} is already added to the phonebook`);
-    } else if (resultName != true && resultNumber != true) {
-      // ADD new numbers 
-      phoneService.create(contactObject);
-      setPersons(persons.concat(contactObject));
-      setId(id + 1);
+    } 
+    // ADD new numbers 
+    else if (resultName != true && resultNumber != true) {
+      // Add backend service
+      phoneService.create(contactObject)
+        .then(createdPerson => {
+          setPersons(persons.concat(contactObject));
+          setSuccessMessage(`Added ${contactObject.name}.`)
+          setTimeout(() => {
+            setSuccessMessage(null)
+          }, 5000)
+        })
+        .catch(error => {
+          setErrorMessage(error.response.data.error)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+        })
       setNewName("");
       setNewNumber("");
-      setSuccessMessage(`Added ${contactObject.name}.`)
-      setTimeout(() => {
-        setSuccessMessage(null)
-      }, 5000)
     }
   };
 
-  // This generates an array of the phone numbers that match the text inside of the "filter shown with" search bar
+  // This generates an array of the phone numbers that match the text 
+  /// inside of the "filter shown with" search bar
   const filtered = persons.filter((contact) =>
     contact.name.toLowerCase().includes(filter.toLowerCase())
   );
@@ -150,6 +163,7 @@ const App = () => {
         valueNumber={newNumber}
       />
       <h2>Numbers 📞</h2>
+      <p>Number example: xxx-xxxxxx</p>
 
       <Persons
         persons={persons}
